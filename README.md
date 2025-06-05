@@ -16,12 +16,9 @@ cargo install just
 ```
 
 然后：
-1. 编译wasm并且到指定路径，你可以自己改路径。
+1. 你如果在target有wasm，都会被收集到项目里面
+2. 编译并且生成模板代码
 ```bash
-just build
+just install
 ```
 
-2. 生成模版代码到指定路径，你可以自己改路径
-```bash
-just gen_by 你的类名
-```
