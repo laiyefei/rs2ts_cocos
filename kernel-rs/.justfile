@@ -1,11 +1,17 @@
-build:
+install:
   mkdir -p ../boom-client/assets/resources/kernel
-  rm -rf ../boom-client/assets/resources/kernel/*
+  just clean
   cargo build --target wasm32-unknown-unknown --release
   find ./target/wasm32-unknown-unknown/release -maxdepth 1 -name "*.wasm" \
   | xargs -I {} sh -c "basename {} | sed 's/\.[^.]*$//'" \
-  | xargs -I {} just build_by {}
+  | xargs -I {} sh -c "just build_by {}; just gen_by {}"
   # just build_by test
+
+clean:
+  rm -rf ../boom-client/assets/resources/kernel/*
+  rm -rf ../boom-client/assets/scripts/kernel/*
+  cargo clean
+  
 
 build_by name:
   sh -c "wasm-bindgen target/wasm32-unknown-unknown/release/{{name}}.wasm \
@@ -24,11 +30,19 @@ build_by name:
 set shell := ["bash", "-c"]  # 去掉 -u，防止未赋值时报错
 
 gen_by name:
-  mkdir -p ../boom-client/assets/scripts/kernel
+  just gen_wasm_adapter
   @name="{{name}}"; \
   class_name="${name^}"; \
   outfile="../boom-client/assets/scripts/kernel/${class_name}.ts"; \
-  echo "import {assetManager, resources} from 'cc';" > "$outfile"; \
+  echo "/**" > "$outfile"; \
+  echo " * @Author : laiyefei" >> "$outfile"; \
+  echo " * @Create : $(date +%Y-%m-%d)" >> "$outfile"; \
+  echo " * @Desc : 业务逻辑：${class_name}" >> "$outfile"; \
+  echo " * @Version : v1.0.0" >> "$outfile"; \
+  echo " * @Blog : http://laiyefei.com" >> "$outfile"; \
+  echo " * @Github : http://github.com/laiyefei" >> "$outfile"; \
+  echo " */" >> "$outfile"; \
+  echo "import {assetManager, resources} from 'cc';" >> "$outfile"; \
   echo 'import WasmAdapter from "./WasmAdapter";' >> "$outfile"; \
   echo "import init, * as wasm from 'db://assets/resources/kernel/${name}.mjs';" >> "$outfile"; \
   echo '' >> "$outfile"; \
@@ -49,6 +63,36 @@ gen_by name:
   echo "    return ${name}.load();" >> "$outfile"; \
   echo '}' >> "$outfile"; \
   echo "✅ 已生成模板到 $outfile"
+
+gen_wasm_adapter:
+  mkdir -p ../boom-client/assets/scripts/kernel
+  outfile="../boom-client/assets/scripts/kernel/WasmAdapter.ts"; \
+  echo "/**" > "$outfile"; \
+  echo " * @Author : laiyefei" >> "$outfile"; \
+  echo " * @Create : $(date +%Y-%m-%d)" >> "$outfile"; \
+  echo " * @Desc : wasm 适配层" >> "$outfile"; \
+  echo " * @Version : v1.0.0" >> "$outfile"; \
+  echo " * @Blog : http://laiyefei.com" >> "$outfile"; \
+  echo " * @Github : http://github.com/laiyefei" >> "$outfile"; \
+  echo " */" >> "$outfile"; \
+  echo "import { _decorator, assetManager, Component, resources } from 'cc';" >> "$outfile"; \
+  echo "" >> "$outfile"; \
+  echo "export default abstract class WasmAdapter {" >> "$outfile"; \
+  echo "" >> "$outfile"; \
+  echo "    protected abstract init(wasm_path:string):Promise<any>;" >> "$outfile"; \
+  echo "    protected abstract target():any;" >> "$outfile"; \
+  echo "" >> "$outfile"; \
+  echo "    protected load_by_uuid<T>(uuid:string) : Promise<T>{" >> "$outfile"; \
+  echo "        return this.init(assetManager.utils.getUrlWithUuid(uuid)?.replace(/\\.[^/.]+$/, '.wasm')).then(() => {" >> "$outfile"; \
+  echo "            return new Promise((resolve) => {" >> "$outfile"; \
+  echo "                resolve(this.target());" >> "$outfile"; \
+  echo "            });" >> "$outfile"; \
+  echo "        });" >> "$outfile"; \
+  echo "    }" >> "$outfile"; \
+  echo "" >> "$outfile"; \
+  echo "    public abstract load():Promise<any>;" >> "$outfile"; \
+  echo "}" >> "$outfile"; \
+  echo "✅ 已生成 WasmAdapter 到 $outfile"
 
 
 public:
