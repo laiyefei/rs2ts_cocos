@@ -104,7 +104,8 @@ public:
   rm -rf ../../rs2ts_cocos/kernel-rs
   mkdir -p ../../rs2ts_cocos/kernel-rs
   cp .justfile ../../rs2ts_cocos/kernel-rs/
-  cp Cargo.toml ../../rs2ts_cocos/kernel-rs/
+  echo "[workspace]" > ../../rs2ts_cocos/kernel-rs/Cargo.toml
+  echo 'members = ["test"]' >> ../../rs2ts_cocos/kernel-rs/Cargo.toml
   find . -mindepth 1 -maxdepth 1 -name test -exec cp -r {} ../../rs2ts_cocos/kernel-rs/ \;
   cd ../../rs2ts_cocos/kernel-rs && \
     git add . && \
