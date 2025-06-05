@@ -42,26 +42,30 @@ gen_by name:
   echo " * @Blog : http://laiyefei.com" >> "$outfile"; \
   echo " * @Github : http://github.com/laiyefei" >> "$outfile"; \
   echo " */" >> "$outfile"; \
-  echo "import {assetManager, resources} from 'cc';" >> "$outfile"; \
-  echo 'import WasmAdapter from "./WasmAdapter";' >> "$outfile"; \
+  echo "import { resources } from 'cc';" >> "$outfile"; \
+  echo "import WasmAdapter from './WasmAdapter';" >> "$outfile"; \
   echo "import init, * as wasm from 'db://assets/resources/kernel/${name}.mjs';" >> "$outfile"; \
-  echo '' >> "$outfile"; \
-  echo "export default class ${class_name} extends WasmAdapter{" >> "$outfile"; \
-  echo '    protected init(wasm_path: string): Promise<any> {' >> "$outfile"; \
-  echo '        return init(wasm_path);' >> "$outfile"; \
-  echo '    }' >> "$outfile"; \
-  echo '    protected target() {' >> "$outfile"; \
-  echo '        return wasm;' >> "$outfile"; \
-  echo '    }' >> "$outfile"; \
-  echo '' >> "$outfile"; \
-  echo '    public async load(): Promise<any> {' >> "$outfile"; \
+  echo "" >> "$outfile"; \
+  echo "export default class ${class_name} extends WasmAdapter {" >> "$outfile"; \
+  echo "    private static _instance: ${class_name} = new ${class_name}();" >> "$outfile"; \
+  echo "    public static get_instance(): ${class_name} {" >> "$outfile"; \
+  echo "        return this._instance;" >> "$outfile"; \
+  echo "    }" >> "$outfile"; \
+  echo "    protected init(wasm_path: string): Promise<any> {" >> "$outfile"; \
+  echo "        return init(wasm_path);" >> "$outfile"; \
+  echo "    }" >> "$outfile"; \
+  echo "    protected target() {" >> "$outfile"; \
+  echo "        return wasm;" >> "$outfile"; \
+  echo "    }" >> "$outfile"; \
+  echo "    public async load(): Promise<any> {" >> "$outfile"; \
   echo "        return this.load_by_uuid(resources.getDirWithPath('kernel/${name}_bg')[0]?.uuid);" >> "$outfile"; \
-  echo '    }' >> "$outfile"; \
-  echo '}' >> "$outfile"; \
-  echo "export const ${name} = new ${class_name}();" >> "$outfile"; \
-  echo "export function load_${name}(callback:(target:any)=>{}):Promise<any>{" >> "$outfile"; \
+  echo "    }" >> "$outfile"; \
+  echo "}" >> "$outfile"; \
+  echo "" >> "$outfile"; \
+  echo "export const ${name} = ${class_name}.get_instance();" >> "$outfile"; \
+  echo "export function load_${name}(callback: (target: any) => {}): Promise<any> {" >> "$outfile"; \
   echo "    return ${name}.load();" >> "$outfile"; \
-  echo '}' >> "$outfile"; \
+  echo "}" >> "$outfile"; \
   echo "✅ 已生成模板到 $outfile"
 
 gen_wasm_adapter:

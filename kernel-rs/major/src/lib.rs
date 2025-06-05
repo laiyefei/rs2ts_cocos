@@ -29,7 +29,6 @@ fn dispatch_notifications(mut queue: ResMut<NotificationQueue>) {
 }
 
 #[wasm_bindgen]
-#[derive(Resource, Clone, Debug)]
 pub struct Person {
     name: String,
     age: u32,
