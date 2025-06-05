@@ -30,7 +30,8 @@ build_by name:
 set shell := ["bash", "-c"]  # 去掉 -u，防止未赋值时报错
 
 gen_by name:
-  just gen_wasm_adapter
+  just gen_adaptor_wasm
+  mkdir -p ../boom-client/assets/scripts/kernel
   @name="{{name}}"; \
   class_name="${name^}"; \
   outfile="../boom-client/assets/scripts/kernel/${class_name}.ts"; \
@@ -43,10 +44,10 @@ gen_by name:
   echo " * @Github : http://github.com/laiyefei" >> "$outfile"; \
   echo " */" >> "$outfile"; \
   echo "import { resources } from 'cc';" >> "$outfile"; \
-  echo "import WasmAdapter from './WasmAdapter';" >> "$outfile"; \
+  echo "import Wasm from '../adaptor/Wasm';" >> "$outfile"; \
   echo "import init, * as wasm from 'db://assets/resources/kernel/${name}.mjs';" >> "$outfile"; \
   echo "" >> "$outfile"; \
-  echo "export default class ${class_name} extends WasmAdapter {" >> "$outfile"; \
+  echo "export default class ${class_name} extends Wasm {" >> "$outfile"; \
   echo "    private static _instance: ${class_name} = new ${class_name}();" >> "$outfile"; \
   echo "    public static get_instance(): ${class_name} {" >> "$outfile"; \
   echo "        return this._instance;" >> "$outfile"; \
@@ -68,9 +69,9 @@ gen_by name:
   echo "}" >> "$outfile"; \
   echo "✅ 已生成模板到 $outfile"
 
-gen_wasm_adapter:
-  mkdir -p ../boom-client/assets/scripts/kernel
-  outfile="../boom-client/assets/scripts/kernel/WasmAdapter.ts"; \
+gen_adaptor_wasm:
+  mkdir -p ../boom-client/assets/scripts/adaptor
+  outfile="../boom-client/assets/scripts/adaptor/Wasm.ts"; \
   echo "/**" > "$outfile"; \
   echo " * @Author : laiyefei" >> "$outfile"; \
   echo " * @Create : $(date +%Y-%m-%d)" >> "$outfile"; \
@@ -81,7 +82,7 @@ gen_wasm_adapter:
   echo " */" >> "$outfile"; \
   echo "import { _decorator, assetManager, Component, resources } from 'cc';" >> "$outfile"; \
   echo "" >> "$outfile"; \
-  echo "export default abstract class WasmAdapter {" >> "$outfile"; \
+  echo "export default abstract class Wasm {" >> "$outfile"; \
   echo "" >> "$outfile"; \
   echo "    protected abstract init(wasm_path:string):Promise<any>;" >> "$outfile"; \
   echo "    protected abstract target():any;" >> "$outfile"; \
@@ -96,7 +97,7 @@ gen_wasm_adapter:
   echo "" >> "$outfile"; \
   echo "    public abstract load():Promise<any>;" >> "$outfile"; \
   echo "}" >> "$outfile"; \
-  echo "✅ 已生成 WasmAdapter 到 $outfile"
+  echo "✅ 已生成 Wasm 适配器到 $outfile"
 
 
 public:
