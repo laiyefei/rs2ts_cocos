@@ -1,11 +1,19 @@
 install:
-  mkdir -p ../boom-client/assets/resources/kernel
   just clean
-  cargo build --target wasm32-unknown-unknown --release
+  just publish
+
+publish:
+  mkdir -p ../boom-client/assets/resources/kernel
+  just release
   find ./target/wasm32-unknown-unknown/release -maxdepth 1 -name "*.wasm" \
   | xargs -I {} sh -c "basename {} | sed 's/\.[^.]*$//'" \
   | xargs -I {} sh -c "just build_by {}; just gen_by {}"
-  # just build_by test
+
+build:
+  cargo build --target wasm32-unknown-unknown
+
+release:
+  cargo build --target wasm32-unknown-unknown --release
 
 clean:
   rm -rf ../boom-client/assets/resources/kernel/*
@@ -43,6 +51,7 @@ gen_by name:
   echo " * @Blog : http://laiyefei.com" >> "$outfile"; \
   echo " * @Github : http://github.com/laiyefei" >> "$outfile"; \
   echo " */" >> "$outfile"; \
+  echo "" >> "$outfile"; \
   echo "import { resources } from 'cc';" >> "$outfile"; \
   echo "import Wasm from '../adaptor/Wasm';" >> "$outfile"; \
   echo "import init, * as wasm from 'db://assets/resources/kernel/${name}.mjs';" >> "$outfile"; \
@@ -80,6 +89,7 @@ gen_adaptor_wasm:
   echo " * @Blog : http://laiyefei.com" >> "$outfile"; \
   echo " * @Github : http://github.com/laiyefei" >> "$outfile"; \
   echo " */" >> "$outfile"; \
+  echo "" >> "$outfile"; \
   echo "import { _decorator, assetManager, Component, resources } from 'cc';" >> "$outfile"; \
   echo "" >> "$outfile"; \
   echo "export default abstract class Wasm {" >> "$outfile"; \
