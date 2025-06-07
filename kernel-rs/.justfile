@@ -79,8 +79,7 @@ gen_by name:
 
 
 public:
-  mkdir -p ../../rs2ts_cocos/kernel-rs
-  rm -rf ../../rs2ts_cocos/kernel-rs
+  # rm -rf ../../rs2ts_cocos/kernel-rs
   mkdir -p ../../rs2ts_cocos/kernel-rs
   cp .justfile ../../rs2ts_cocos/kernel-rs/
   echo "[workspace]" > ../../rs2ts_cocos/kernel-rs/Cargo.toml
